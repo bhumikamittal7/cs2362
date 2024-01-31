@@ -1,6 +1,5 @@
 '''
-Write a program to implement the Substitute Cipher. Your program must have three separate
-subprograms: [15]
+Write a program to implement the Substitute Cipher. Your program must have three separate subprograms: [15]
 - KeyGen: This program lets Alice/Bob choose a random permutation π : {0, . . . , 25} →
 {0, . . . , 25} from the set of all such permutations as a common secret key sk.
 - Enc: This program takes as input an english text and outputs its encryption (as described by
@@ -21,6 +20,7 @@ def encoding(userInput):
         if userInput.lower() != userInput:
             print("User input must be lowercase, converting to lowercase...")
             userInput = userInput.lower()
+            print("Convereted User Input: ", userInput)
         for i in userInput:
             encodedInput.append(ord(i) - 97)
         return encodedInput
