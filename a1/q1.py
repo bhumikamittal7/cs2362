@@ -168,7 +168,7 @@ def decrypt(cipherFile, keyFilePath):
     sk = file.read()
     file.close()
     sk = list(map(int, sk.split()))
-    print(sk)
+    # print(sk)
     decrypted = dec(cipher, sk)
     decodedInput = decoded(decrypted)
     decodedFile = decodedFileName(keyFilePath)
