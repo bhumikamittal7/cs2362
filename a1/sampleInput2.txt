@@ -1,0 +1,14 @@
+Dear Students,
+
+This is a gentle reminder that we will be having our online introductory session for the course CS-2366 tomorrow, February 2nd, from 10:30 AM to 11:30 AM.
+
+Google Meet Video Call Link: https://meet.google.com/cyq-vuew-pzd
+
+During this session, we will discuss the syllabus, expectations, and any queries you might have.
+
+Additionally, I am attaching to this email the resources we will be using throughout the course as well as the following link: https://ocw.tudelft.nl/courses/quantum-cryptography, these will form the foundation of our coursework and discussions.
+
+Looking forward to meeting each of you online and to an exciting term ahead!
+
+Best regards,
+Subhamoy
