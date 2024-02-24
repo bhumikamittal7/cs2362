@@ -1,52 +1,6 @@
 import random
 
-# ========================================== Uniform Sampling ==========================================
-def bernoulli(p):
-    return random.random() < p
-
-def uniform_sampling(number_of_bits):
-    p = 0.5
-    result = 0
-    for _ in range(number_of_bits):
-        result <<= 1
-        result |= bernoulli(p)
-    return result
-
-def convert_to_binary(number, number_of_bits):
-    return format(number, f'0{number_of_bits}b')
-
-def convert_to_decimal(binary):
-    return int(binary, 2)
-
-# ========================================== Subset Sum PRG ==========================================
-def sample_a(n, q):
-    a = []
-    for i in range(n):
-        a.append(uniform_sampling(q))
-    return a
-
-a = sample_a(80, 160)
-
-def subset_sum_prg(seed):
-    q = 2**160
-    return sum([a[i] for i in range(len(a)) if (seed >> i) & 1]) % q
-
-# ========================================== Encoding and decoding message ==========================================
-def encode_message(msg):
-    binary_msg = "".join(format(ord(char), '08b') for char in msg)
-    if len(binary_msg) < 160:
-        binary_msg = binary_msg + '0'*(160 - len(binary_msg))
-    elif len(binary_msg) > 160:
-        binary_msg = binary_msg[:160]
-    return int(binary_msg, 2)
-
-def decode_message(msg_binary):
-    msg_binary = format(msg_binary, '0160b')
-    chunks = [msg_binary[i:i+8] for i in range(0, len(msg_binary), 8)]
-    msg = ''.join([chr(int(chunk, 2)) for chunk in chunks])
-    return msg
-
-# ========================================== Read/Save Files ==========================================
+# ========================================== Utilities - Read/Save Files ==========================================
 import os
 import uuid
 
@@ -75,6 +29,63 @@ def decodedFileName(keyFile):
     return decodedFile
 
 keyFile = fileNames()
+
+# ========================================== Uniform Sampling ==========================================
+def bernoulli(p):
+    return random.random() < p
+
+def uniform_sampling(number_of_bits):
+    p = 0.5
+    result = 0
+    for _ in range(number_of_bits):
+        result <<= 1
+        result |= bernoulli(p)
+    return result
+
+def convert_to_binary(number, number_of_bits):
+    return format(number, f'0{number_of_bits}b')
+
+def convert_to_decimal(binary):
+    return int(binary, 2)
+
+# ========================================== Subset Sum PRG ==========================================
+def sample_a(n, q):
+    a = []
+    for i in range(n):
+        a.append(uniform_sampling(q))
+    return a
+
+# def save_a_to_file(a):
+#     a = ' '.join(map(str, a))
+#     saveTofile("a.txt", a)
+
+# a = sample_a(80, 160)
+# save_a_to_file(a)
+
+def read_a_from_file():
+    a = readFile("a.txt")
+    a = list(map(int, a.split()))
+    return a
+
+def subset_sum_prg(seed):
+    a = read_a_from_file()
+    q = 2**160
+    return sum([a[i] for i in range(len(a)) if (seed >> i) & 1]) % q
+
+# ========================================== Encoding and decoding message ==========================================
+def encode_message(msg):
+    binary_msg = "".join(format(ord(char), '08b') for char in msg)
+    if len(binary_msg) < 160:
+        binary_msg = binary_msg + '0'*(160 - len(binary_msg))
+    elif len(binary_msg) > 160:
+        binary_msg = binary_msg[:160]
+    return int(binary_msg, 2)
+
+def decode_message(msg_binary):
+    msg_binary = format(msg_binary, '0160b')
+    chunks = [msg_binary[i:i+8] for i in range(0, len(msg_binary), 8)]
+    msg = ''.join([chr(int(chunk, 2)) for chunk in chunks])
+    return msg
 
 # ========================================== Main Logic ==========================================
 def keygen():
@@ -186,3 +197,4 @@ def runProg():
 
 print("Welcome to A2 Cipher Program!")
 runProg()
+
