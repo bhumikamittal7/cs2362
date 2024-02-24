@@ -13,7 +13,7 @@ import random
 
 def cleanFile(text):
     text = text.lower()
-    text = text.replace(" ", "")
+    # text = text.replace(" ", "")
     text = text.replace("\n", "")
     text = text.replace(".", "")
     text = text.replace(",", "")
@@ -69,13 +69,17 @@ def readFile(textfile):
 
 def encoding(userInput):
     encodedInput = []
-    if userInput.isalpha() and len(userInput) >= 1:
+    if len(userInput) >= 1:
         for i in userInput:
-            encodedInput.append(ord(i) - 97)
+            if i.isalpha():
+                encodedInput.append(ord(i) - 97)
+            else:
+                encodedInput.append(-1)  # Encode space as -1
         return encodedInput
     else:
         print("User input must be a string of English letters only (no spaces, no punctuation, no numbers) of length at least 1 - all lowercase")
         return "Invalid Input"
+
 
 def keygen():
     #permutation Pi: {0, . . . , 25} → {0, . . . , 25}
@@ -85,22 +89,21 @@ def keygen():
 
 def enc(encodedInput, sk):
     # encryption
-    cipher = [sk[i] for i in encodedInput]
+    cipher = [sk[i] if i != -1 else -1 for i in encodedInput]
     return cipher
 
 def readableCipher(cipher):
-    readableCipher = [chr(i + 97) for i in cipher]
+    readableCipher = [chr(i + 97) if i != -1 else ' ' for i in cipher]
     return ''.join(readableCipher)
 
 def dec(cipher, sk):
     # decryption
-
-    decrypted = [sk.index(i) for i in cipher]
+    decrypted = [sk.index(i) if i != -1 else -1 for i in cipher]
     return decrypted
 
 def decoded(decrypted):
     # take in decrypted and convert to user input
-    decodedInput = [chr(i + 97) for i in decrypted]
+    decodedInput = [chr(i + 97) if i != -1 else ' ' for i in decrypted]
     return ''.join(decodedInput)
 
 def saveTofile(textfile, text):
@@ -226,4 +229,3 @@ runProg()
 4. take cipher file + key file and decrypt and save that to decrypted file
 5. do the verification thing -- correctness!
 '''
-
