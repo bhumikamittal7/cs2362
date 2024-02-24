@@ -1,0 +1,20 @@
+Write a program to implement the following encryption scheme 
+
+- Setup: The setup describes the building blocks used by the scheme. They are as follows:
+(a) A PRG G : {0, 1}^80 → {0, 1}^160. Consider using one of the candidate PRGs discussed in the course (subset sum PRG).
+
+- KeyGen(180): The key space is set to K = {0, 1}^80. The KeyGen algorithm samples a random key k$← {0, 1}^80. 
+You must write your own program to sample uniformly from the key space.
+
+- Enc: The encryption algorithm takes a message and a key k as input. The messages are allowed to be any text/textfile with size at most 80 bits. 
+Use appropriate encoding to convert your text message into a unique m ∈ {0, 1}^160. The encryption then proceeds as follows:
+
+- Pick r $← {0, 1}^80
+- Compute z = G(k ⊕ r) ⊕ m
+- Output ciphertext C = (r, z)
+You may choose an appropriate encoding for representing the ciphertext into a text file.
+
+- Dec: The input to the decryption algorithm is a ciphertext file and a key k. The decryption is carried out as follows:
+(a) Parse the ciphertext as (r, z)
+(b) Compute m = G(k ⊕ r) ⊕ z
+(c) Decode m to its text representation and output it as the decrypted message
