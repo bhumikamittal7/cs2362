@@ -6,7 +6,7 @@ Write a program to implement the following encryption scheme
 - KeyGen(180): The key space is set to K = {0, 1}^80. The KeyGen algorithm samples a random key k$← {0, 1}^80. 
 You must write your own program to sample uniformly from the key space.
 
-- Enc: The encryption algorithm takes a message and a key k as input. The messages are allowed to be any text/textfile with size at most 80 bits. 
+- Enc: The encryption algorithm takes a message and a key k as input. The messages are allowed to be any text/textfile with size at most 160 bits. 
 Use appropriate encoding to convert your text message into a unique m ∈ {0, 1}^160. The encryption then proceeds as follows:
 
 - Pick r $← {0, 1}^80
