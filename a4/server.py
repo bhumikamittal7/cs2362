@@ -4,7 +4,6 @@ from petlib.bn import Bn
 from petlib.cipher import Cipher
 import ast
 
-
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = '127.0.0.1'
 port = 50000
@@ -42,7 +41,6 @@ def decrypt(c, v, k):
     msg = dec.update(c) + dec.finalize()
     return msg.decode()
 
-
 serverSocket.listen(4)
 print("Server is listening for connections")
 conn, addr = serverSocket.accept()
@@ -50,7 +48,7 @@ print("Connection from: ", addr)
 
 #recieve hello from the client
 initMsg = conn.recv(1024).decode()
-print("Received: ", initMsg)
+print("Hanshaked - Recieved: ", initMsg)
 
 p = gen_prime()
 g = pick_gen(p)
@@ -58,27 +56,30 @@ alpha = pick_alpha(p)
 h1 = compute_h1(g, alpha, p)
 
 hello = f"hello {p} {g} {h1}"
-print("Sending: ", hello)
+print(" =================== Sending params =================== ")
+print("p = ", p)
+print("g = ", g)
+print("h1 = ", h1)
 conn.send(hello.encode())
 
 h2 = conn.recv(1024).decode()
-print("Received: ", h2)
+print("h2 =  ", h2)
 
 k = compute_K(int(h2), alpha, p)
-print("K = ", k)
+print("Key = ", k)
 
-print("Key exchange complete.")
+print(" =================== Key exchange complete =================== ")
 
 #recieve C from the client
 cip = conn.recv(1024).decode()
 c, v = cip.split()
-print("Received: ", c)
+print("Received cipher: ", c)
 
-print("Decoding message...")
+print("Decrypting message...")
 
 #compute msg' = AES.Dec^cbc(C, K)
 msgPrime = decrypt(c,v,k)
-print("Sending: ", msgPrime)
+print("Decrypted message: ", msgPrime)
 conn.send(msgPrime.encode())
 
 conn.close()
