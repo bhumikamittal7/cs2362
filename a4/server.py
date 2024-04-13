@@ -1,71 +1,85 @@
 import socket
+import random
+from petlib.bn import Bn
+from petlib.cipher import Cipher
+import ast
+
 
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = '127.0.0.1'  #localhost
+host = '127.0.0.1'
 port = 50000
 serverSocket.bind((host, port))
 
-import random
-import petlib
+def gen_prime():
+    p = Bn.get_prime(128, safe=1)
+    p.int_sub(Bn(1))
+    p.int_div(Bn(2))
+    p = int(p)
+    return p
 
-# generate a 128-bit prime p using petlib safe prime function
-
-
-
-# Consider the group G = Z_p^* (the multiplicative group of integers modulo p)
-# pick g \in G uniformly at random such that g is a generator of G
-
-
-# pick an alpha uniformly at random from the interval {1, p-1}
-def generate_alpha(p):
+def pick_gen(p):
+    while True:
+        g = random.randint(2, p-1)
+        if pow(g, (p-1)//2, p) != 1 and pow(g, 2, p) != 1:
+            return g
+        
+def pick_alpha(p):
     return random.randint(1, p-1)
 
-# compute h_1 = g^alpha mod p
-def compute_h_1(g, alpha, p):
+def compute_h1(g, alpha, p):
     return pow(g, alpha, p)
 
-# send hello (p, g, h_1) to the client
+def compute_K(h2, alpha, p):
+    return pow(h2, alpha, p)
 
-# recieve h_2 from the client
+def decrypt(c, v, k):
+    mode = Cipher("AES-128-CBC")
+    c = ast.literal_eval(c.strip())
+    v = ast.literal_eval(v.strip())
 
-# compute K = h_2^alpha
-
-# recieve C from the client
-
-# compute msg' = AES.Dec^cbc(C, K)
-
-# send msg' to the client
-
-def userChoice():
-    try:
-        data = clientSocket.recv(8192)
-        if not data:
-            raise Exception("No data received")
-        choice = int(data.decode('utf-8'))
-        return choice
-    except Exception as e:
-        print(f"Error getting user choice: {e}")
-        return -1
+    key = k.to_bytes(16, 'big')
+    dec = mode.dec(key, v)
+    msg = dec.update(c) + dec.finalize()
+    return msg.decode()
 
 
-serverSocket.listen(4) 
-print("Server is waiting for a connection ....")
-clientSocket, address = serverSocket.accept()
-print(f"connection from: {address}")
+serverSocket.listen(4)
+print("Server is listening for connections")
+conn, addr = serverSocket.accept()
+print("Connection from: ", addr)
 
-while True:
-    try:
-        choice = userChoice()
+#recieve hello from the client
+initMsg = conn.recv(1024).decode()
+print("Received: ", initMsg)
 
-        if choice == 1:
-            #recieve hello from the client
-            hello = clientSocket.recv(8192).decode('utf-8')
-            print(hello)
+p = gen_prime()
+g = pick_gen(p)
+alpha = pick_alpha(p)
+h1 = compute_h1(g, alpha, p)
 
-    except Exception as e:
-        print(f"Error: {e}")
-        break
+hello = f"hello {p} {g} {h1}"
+print("Sending: ", hello)
+conn.send(hello.encode())
 
-clientSocket.close()
+h2 = conn.recv(1024).decode()
+print("Received: ", h2)
+
+k = compute_K(int(h2), alpha, p)
+print("K = ", k)
+
+print("Key exchange complete.")
+
+#recieve C from the client
+cip = conn.recv(1024).decode()
+c, v = cip.split()
+print("Received: ", c)
+
+print("Decoding message...")
+
+#compute msg' = AES.Dec^cbc(C, K)
+msgPrime = decrypt(c,v,k)
+print("Sending: ", msgPrime)
+conn.send(msgPrime.encode())
+
+conn.close()
 serverSocket.close()
-print("Connection closed")

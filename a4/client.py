@@ -1,59 +1,63 @@
 import socket
+import random
+from petlib.cipher import Cipher
+from os import urandom
+
+def encrypt(key, msg):
+    mode = Cipher("AES-128-CBC")
+    iv = urandom(16)
+    key = key.to_bytes(16, 'big')
+    enc = mode.enc(key, iv)
+    c = enc.update(msg.encode('utf-8')) + enc.finalize()
+    return c, iv
 
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serverHost = "127.0.0.1"
 serverPort = 50000
 
-try: 
-    clientSocket.connect((serverHost, serverPort))
-    print("Welcome to the Course Information Server.\n")
+clientSocket.connect((serverHost, serverPort))
+print("Connected to the Server. Sending hello....\n")
 
-    while True:
-        print ("Press 1 to ask continue, press 2 to quit")
-        choice = int(input("Enter your choice: "))
-        clientSocket.send(str(choice).encode('utf-8'))
-
-        #somehow the server is not receiving the choice
-        
-        if choice == 1:
-            #send hello to the server
-            clientSocket.send("hello".encode('utf-8'))
-        
-        elif choice == 2:
-            byeMessage = clientSocket.recv(8192).decode('utf-8')
-            print(byeMessage)
-            clientSocket.close()
-            break
-
-        else:
-            invalidMessage = clientSocket.recv(8192).decode('utf-8')
-            print(invalidMessage)
-
-except Exception as e:
-    print(e)
-    print("Connection closed")
-
-clientSocket.close()
 #send hello to the server
+clientSocket.send("hello".encode('utf-8'))
 
 #recieve hello (p, g, h_1) from the server
+hello = clientSocket.recv(8192).decode('utf-8')
+print("Received: ", hello)
+m, p, g, h1 = hello.split()
+p, g, h1 = int(p), int(g), int(h1)
 
 #pick a beta uniformly at random from the interval {1, p-1}
+beta = random.randint(1, p-1)
+
 #compute h_2 = g^beta mod p
+h2 = pow(g, beta, p)
 
 #send h_2 to the server
-
+clientSocket.send(str(h2).encode('utf-8'))
+                  
 #compute K = h_1^beta
+k = pow(h1, beta, p)
+print("K = ", k)
+print("Key exchange complete")
 
 #choose a text msg to send to the server
+msg = input("Enter your message: ")
+
 # compute C = AES.Enc^cbc(msg, K)
+c, v = encrypt(k, msg)
+cip = f"{c} {v}"
 # send C to the server
+clientSocket.send(cip.encode('utf-8'))
+print("Cipher sent to the server")
 
 #recieve msg' from the server
+msgPrime = clientSocket.recv(8192).decode('utf-8')
+print("Received: ", msgPrime)
 
-#if msg' == msg:
-#    print "Success"
-#else:
-#    print "Failure"
+if msgPrime == msg:
+    print("Success")
+else:
+    print("Failure")
 
-#closes the connection
+clientSocket.close()
