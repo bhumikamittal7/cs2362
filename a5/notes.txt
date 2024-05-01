@@ -1,0 +1,16 @@
+openssl version -a
+
+#generate a private key
+openssl genrsa -out userP.key 2048
+
+#saves the public key in a file
+openssl rsa -in userP.key -pubout -out userP.pub
+
+#generate a certificate signing request
+openssl req -new -key userP.key -out userP.csr
+
+openssl req -text -in userP.csr -noout -verify
+
+#generate a self-signed certificate
+openssl x509 -in userP.csr -out userP.crt -req -signkey userP.key -days 365
+
